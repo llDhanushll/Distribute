@@ -1,0 +1,1 @@
+from .hamc_sign import Signature
