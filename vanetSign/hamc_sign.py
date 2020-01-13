@@ -13,12 +13,10 @@ class Signature:
                                      dumps(payload, separators=(',', ':'), sort_keys=True).encode('utf-8'), sha256)
         return b64encode(self.myHmac.digest()).decode('utf-8') == signature
 
-    def getSignature(self, payload) -> dict:
+    def getSignature(self, payload):
         replyHmac = sinricHmac.new(self.secretKey.encode('utf-8'),
                                    dumps(payload, separators=(',', ':'), sort_keys=True).encode('utf-8'), sha256)
 
         encodedHmac = b64encode(replyHmac.digest())
 
-        return {
-            "HMAC": encodedHmac.decode('utf-8')
-        }
+        return encodedHmac.decode('utf-8')

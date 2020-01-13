@@ -1,73 +1,36 @@
 import asyncio
-
 from aiohttp import web
-
 import socketio
+from vanetSign import Signature
+from secret_key import secretKey
 
 sio = socketio.AsyncServer(async_mode='aiohttp')
 app = web.Application()
 sio.attach(app)
 
+secret_key = secretKey
 
 async def background_task():
-    """Example of how to send server generated events to clients."""
     count = 0
     while True:
         await sio.sleep(10)
         count += 1
-        await sio.emit('my_response', {'data': 'Server generated event'})
-
-
-async def index(request):
-    with open('app.html') as f:
-        return web.Response(text=f.read(), content_type='text/html')
+        await sio.emit('get_message', {'data': 'Room generated event'}, room="some_room")
 
 @sio.event
-async def send_friend(sid,message):
-    await sio.emit('get_message', {'data': message['data']}, room=message['id'])
-
-@sio.event
-async def my_event(sid, message):
-    await sio.emit('my_response', {'data': message['data']}, room=sid)
-
-
-@sio.event
-async def my_broadcast_event(sid, message):
-    await sio.emit('my_response', {'data': message['data']})
-
-
-@sio.event
-async def join(sid, message):
+async def join_chat(sid,message):
+    print(sid + '  joined to {}'.format(message['room']))
     sio.enter_room(sid, message['room'])
-    await sio.emit('my_response', {'data': 'Entered room: ' + message['room']},
-                   room=sid)
-
 
 @sio.event
-async def leave(sid, message):
-    sio.leave_room(sid, message['room'])
-    await sio.emit('my_response', {'data': 'Left room: ' + message['room']},
-                   room=sid)
-
+async def exit_chat(sid):
+    sio.leave_room(sid, 'dazz_room')
 
 @sio.event
-async def close_room(sid, message):
-    await sio.emit('my_response',
-                   {'data': 'Room ' + message['room'] + ' is closing.'},
-                   room=message['room'])
-    await sio.close_room(message['room'])
-
-
-@sio.event
-async def my_room_event(sid, message):
-    await sio.emit('my_response', {'data': message['data']},
-                   room=message['room'])
-
-
-@sio.event
-async def disconnect_request(sid):
-    await sio.disconnect(sid)
-
+async def send_chat_room(sid, message):
+     ob = Signature(secret_key)
+     if ob.verifySignature({'message': message['message']},message['signature']):
+        await sio.emit('get_message', {'message': message['message'], 'from': sid}, room=message['room'])
 
 @sio.event
 async def connect(sid, environ):
@@ -78,10 +41,6 @@ async def connect(sid, environ):
 @sio.event
 def disconnect(sid):
     print('Client disconnected')
-
-
-# app.router.add_static('/static', 'static')
-app.router.add_get('/', index)
 
 
 if __name__ == '__main__':
