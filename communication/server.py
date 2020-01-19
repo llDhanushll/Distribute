@@ -2,13 +2,12 @@ import asyncio
 from aiohttp import web
 import socketio
 from vanetSign import Signature
-from secret_key import secretKey
 
 sio = socketio.AsyncServer(async_mode='aiohttp')
 app = web.Application()
 sio.attach(app)
 
-secret_key = secretKey
+secret_key = 'dhanush'
 
 async def background_task():
     count = 0

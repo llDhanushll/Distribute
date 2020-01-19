@@ -8,14 +8,13 @@ loop = asyncio.get_event_loop()
 sio = socketio.AsyncClient()
 start_timer = None
 
-room_name = 'naveen'
 IP = '192.168.43.151'
 PORT = '8080'
 
 @sio.event
 async def connect():
     print('connected to server')
-    await sio.emit('join_chat', {'room': room_name})
+    await sio.emit('join_chat', {'room': 'naveen'})
 
 async def start_client():
     await sio.connect('http://'+IP+':'+PORT)
@@ -26,11 +25,11 @@ async def get_message(message):
     print(message)
 
 async def send_message():
-    ob = Signature('ksdfl')
+    ob = Signature('dhanush')
     while True:
         await asyncio.sleep(0.01)
         k = await ainput()
-        await sio.emit('send_chat_room', {'message': k, 'room': room_name, 'signature': ob.getSignature({'message':k})})
+        await sio.emit('send_chat_room', {'message': k, 'room': 'some_room', 'signature': ob.getSignature({'message':k})})
 
 
 async def main():
@@ -39,6 +38,7 @@ async def main():
         start_client(),
         send_message()
     )
+    # await start_client()
 
 if __name__ == '__main__':
     loop.run_until_complete(main())

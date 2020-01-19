@@ -3,13 +3,12 @@ import time
 import socketio
 from aioconsole import ainput
 from vanetSign import Signature
-from secret_key import secretKey
 
 loop = asyncio.get_event_loop()
 sio = socketio.AsyncClient()
 start_timer = None
 
-IP = '192.168.29.151'
+IP = '192.168.43.151'
 PORT = '8080'
 
 @sio.event
@@ -26,7 +25,7 @@ async def get_message(message):
     print(message)
 
 async def send_message():
-    ob = Signature(secretKey)
+    ob = Signature('dhanush')
     while True:
         await asyncio.sleep(0.01)
         k = await ainput()
