@@ -1,3 +1,9 @@
 {
-    "python.pythonPath": "envvanets/bin/python"
+    "python.pythonPath": "envvanets/bin/python",
+    "files.exclude": {
+        "**/.classpath": true,
+        "**/.project": true,
+        "**/.settings": true,
+        "**/.factorypath": true
+    }
 }

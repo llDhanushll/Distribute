@@ -7,7 +7,7 @@ sio = socketio.AsyncServer(async_mode='aiohttp')
 app = web.Application()
 sio.attach(app)
 
-secret_key = 'dhanush'
+secret_key = 'something'
 
 async def background_task():
     count = 0
@@ -18,7 +18,7 @@ async def background_task():
 
 @sio.event
 async def join_chat(sid,message):
-    print(sid + '  joined to {}'.format(message['room']))
+    print(message.get('name', sid) + ' joined to {}'.format(message['room']))
     sio.enter_room(sid, message['room'])
 
 @sio.event
@@ -30,6 +30,8 @@ async def send_chat_room(sid, message):
      ob = Signature(secret_key)
      if ob.verifySignature({'message': message['message']},message['signature']):
         await sio.emit('get_message', {'message': message['message'], 'from': sid}, room=message['room'])
+     else:
+        print('Signature Verification failed : ',message['name'])
 
 @sio.event
 async def connect(sid, environ):
