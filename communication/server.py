@@ -1,13 +1,33 @@
 import asyncio
 from aiohttp import web
 import socketio
-from vanetSign import Signature
+import hmac as sinricHmac
+from hashlib import sha256
+from json import dumps
+from base64 import b64encode
+
+class Signature:
+    def __init__(self, secretKey):
+        self.secretKey = secretKey
+
+    def verifySignature(self, payload, signature) -> bool:
+        self.myHmac = sinricHmac.new(self.secretKey.encode('utf-8'),
+                                     dumps(payload, separators=(',', ':'), sort_keys=True).encode('utf-8'), sha256)
+        return b64encode(self.myHmac.digest()).decode('utf-8') == signature
+
+    def getSignature(self, payload):
+        replyHmac = sinricHmac.new(self.secretKey.encode('utf-8'),
+                                   dumps(payload, separators=(',', ':'), sort_keys=True).encode('utf-8'), sha256)
+
+        encodedHmac = b64encode(replyHmac.digest())
+
+        return encodedHmac.decode('utf-8')
 
 sio = socketio.AsyncServer(async_mode='aiohttp')
 app = web.Application()
 sio.attach(app)
 
-secret_key = 'something'
+secret_key = 'fucksit'
 
 async def background_task():
     count = 0
