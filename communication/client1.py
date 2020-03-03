@@ -42,7 +42,7 @@ if __name__ == '__main__':
     
     roomName = 'banglore'
 
-    secretKey = b'fucksi'
+    secretKey = b'fucksit'
 
     messageToSend = 'One life One love One destiny'
 
