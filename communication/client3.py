@@ -5,6 +5,9 @@ from base64 import b64encode
 import hmac as sinricHmac
 from hashlib import sha256
 from aioconsole import ainput
+from rc4 import RC4
+
+
 
 class VanetClient:
     def __init__(self,sio: AsyncClient, IpAddress, secretKey):
@@ -31,20 +34,21 @@ if __name__ == '__main__':
 # -----------------=-------------------------=-------------------=-------------=- 
 # -----------------=-------------------------=-------------------=-------------=- 
     
-    IpAddress = '192.168.29.151'
+    IpAddress = '192.168.29.145'
     
     PORT = '8080'
 
-    clientName = 'Captain UnderPants'
+    clientName = 'Jimbo'
     
     roomName = 'banglore'
 
-    secretKey = 'fucksit'
+    secretKey = b'fucksit'
 
     messageToSend = 'One life One love One destiny'
 
 # -----------------=-------------------------=-------------------=-------------=- 
 # -----------------=-------------------------=-------------------=-------------=- 
+    rc4_client = RC4(secretKey, streaming=False)
 
     sio = AsyncClient()
     FullIp = 'http://'+IpAddress+':'+PORT
@@ -57,14 +61,15 @@ if __name__ == '__main__':
     
     @sio.event
     async def get_message(message):
-        print(message)
+        print('Crypt message : ',message)
+        print('Decoded Message : '+rc4_client.crypt(message['message']).decode('ascii'))
+        await asyncio.sleep(0.1)
 
     async def send_message():
         while True:
             await asyncio.sleep(0.01)
             messageToSend = await ainput()
-            await sio.emit('send_chat_room', {'message': messageToSend,'name': clientName, 'room': roomName, 
-                'signature': ob.getSignature({'message':messageToSend})})
+            await sio.emit('send_chat_room', {'message': rc4_client.crypt(messageToSend.encode('ascii')),'name': clientName, 'room': roomName})
 
     async def main(IpAddress):
          await asyncio.gather(

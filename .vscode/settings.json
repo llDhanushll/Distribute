@@ -1,9 +1,10 @@
 {
-    "python.pythonPath": "envvanets/bin/python",
+    "python.pythonPath": "vanet/bin/python",
     "files.exclude": {
         "**/.classpath": true,
         "**/.project": true,
         "**/.settings": true,
         "**/.factorypath": true
-    }
+    },
+    "python.linting.enabled": false
 }

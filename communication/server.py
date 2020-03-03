@@ -5,29 +5,11 @@ import hmac as sinricHmac
 from hashlib import sha256
 from json import dumps
 from base64 import b64encode
-
-class Signature:
-    def __init__(self, secretKey):
-        self.secretKey = secretKey
-
-    def verifySignature(self, payload, signature) -> bool:
-        self.myHmac = sinricHmac.new(self.secretKey.encode('utf-8'),
-                                     dumps(payload, separators=(',', ':'), sort_keys=True).encode('utf-8'), sha256)
-        return b64encode(self.myHmac.digest()).decode('utf-8') == signature
-
-    def getSignature(self, payload):
-        replyHmac = sinricHmac.new(self.secretKey.encode('utf-8'),
-                                   dumps(payload, separators=(',', ':'), sort_keys=True).encode('utf-8'), sha256)
-
-        encodedHmac = b64encode(replyHmac.digest())
-
-        return encodedHmac.decode('utf-8')
+from rc4 import RC4
 
 sio = socketio.AsyncServer(async_mode='aiohttp')
 app = web.Application()
 sio.attach(app)
-
-secret_key = 'fucksit'
 
 async def background_task():
     count = 0
@@ -47,11 +29,7 @@ async def exit_chat(sid):
 
 @sio.event
 async def send_chat_room(sid, message):
-     ob = Signature(secret_key)
-     if ob.verifySignature({'message': message['message']},message['signature']):
         await sio.emit('get_message', {'message': message['message'], 'from': sid}, room=message['room'])
-     else:
-        print('Signature Verification failed : ',message['name'])
 
 @sio.event
 async def connect(sid, environ):
