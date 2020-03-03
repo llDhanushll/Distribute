@@ -42,7 +42,7 @@ if __name__ == '__main__':
     
     roomName = 'banglore'
 
-    secretKey = b'fucksit'
+    secretKey = b'fucksi'
 
     messageToSend = 'One life One love One destiny'
 
@@ -62,7 +62,10 @@ if __name__ == '__main__':
     @sio.event
     async def get_message(message):
         print('Crypt message : ',message)
-        print('Decoded Message : '+rc4_client.crypt(message['message']).decode('ascii'))
+        try:
+            print('Decoded Message : '+rc4_client.crypt(message['message']).decode('utf-8'))
+        except:
+            print('Message not decoded')
         await asyncio.sleep(0.1)
 
     async def send_message():
